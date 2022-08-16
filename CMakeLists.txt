@@ -33,12 +33,18 @@ target_sources(
 #####################
 ##### Libraries #####
 #####################
+###
+# json
+find_package(nlohmann_json CONFIG REQUIRED)
+
 add_subdirectory(plugin)
 
 # Add external libraries
 target_link_libraries(
     ${PROJECT}
     PRIVATE
+    nlohmann_json
+    nlohmann_json::nlohmann_json
     remeshWithDualContouring
 )
 ###########################
@@ -86,7 +92,7 @@ endif ()
 ##### Resources #####
 #####################
 add_custom_command(TARGET ${PROJECT} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/build/plugin/Release/remeshWithDualContouring.dll" "$<TARGET_FILE_DIR:${PROJECT}>")
-add_custom_command(TARGET ${PROJECT} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/build/plugin/Release/remeshWithDualContouring.dll" "${CMAKE_CURRENT_SOURCE_DIR}/ZPlugs64/mitsuba2_shooter_2021/remeshWithDualContouring.dll")
+add_custom_command(TARGET ${PROJECT} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/build/plugin/Release/remeshWithDualContouring.dll" "${CMAKE_CURRENT_SOURCE_DIR}/ZPlugs64/remeshWithDualContouring_2022/remeshWithDualContouring.dll")
 ###########################
 ##### Resources (end) #####
 ###########################

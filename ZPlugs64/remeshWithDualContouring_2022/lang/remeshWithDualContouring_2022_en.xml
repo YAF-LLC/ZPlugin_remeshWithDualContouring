@@ -1,0 +1,5 @@
+<buttons>
+  <button path="ZPlugin:Dual Contouring:Remesh">
+    <title text="Remesh with Dual Contouring" trans=""/>
+  </button>
+</buttons>

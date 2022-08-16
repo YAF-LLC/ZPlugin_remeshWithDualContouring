@@ -17,10 +17,35 @@ target_sources(
     ${PROJECT}
     PRIVATE
     src/remesh.cpp
+    src/readGoZAndTriangulate.cpp
 )
 ########################
 ##### target (end) #####
 ########################
+
+
+#####################
+##### Libraries #####
+#####################
+###
+# json
+find_package(nlohmann_json CONFIG REQUIRED)
+
+###
+# eigen3
+find_package(Eigen3 CONFIG REQUIRED)
+
+# Add external libraries
+target_link_libraries(
+    ${PROJECT}
+    PRIVATE
+    nlohmann_json
+    nlohmann_json::nlohmann_json
+    Eigen3::Eigen
+)
+###########################
+##### Libraries (end) #####
+###########################
 
 
 ###################
@@ -33,6 +58,7 @@ target_include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR}/../submodule/libigl/include
     ${CMAKE_CURRENT_SOURCE_DIR}/../submodule/eigen
+    ${CMAKE_CURRENT_SOURCE_DIR}/../submodule/FromZ/src
 )
 #########################
 ##### Include (end) #####

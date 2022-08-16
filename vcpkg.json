@@ -1,0 +1,10 @@
+{
+    "name": "zbrush-remeshwithdualcontouring",
+    "version-string": "2022",
+    "description": "ZBrush plugin for remeshing with Dual Contouring",
+    "homepage": "https://github.com/n-taka/ZBrush_remeshWithDualContouring",
+    "dependencies": [
+        "nlohmann-json",
+        "eigen3"
+    ]
+}

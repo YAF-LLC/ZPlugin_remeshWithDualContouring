@@ -1,6 +1,9 @@
 [submodule "submodule/libigl"]
 	path = submodule/libigl
 	url = https://github.com/libigl/libigl.git
-[submodule "submodule/eigen"]
-	path = submodule/eigen
-	url = https://gitlab.com/libeigen/eigen.git
+[submodule "submodule/vcpkg"]
+	path = submodule/vcpkg
+	url = https://github.com/microsoft/vcpkg.git
+[submodule "submodule/FromZ"]
+	path = submodule/FromZ
+	url = https://github.com/n-taka/FromZ.git

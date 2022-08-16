@@ -16,7 +16,8 @@ namespace igl
     const Eigen::MatrixBase<DerivedV> &V,
     const Eigen::MatrixBase<DerivedF> &F,
     Eigen::PlainObjectBase<DerivedNV> &NV,
-    Eigen::PlainObjectBase<DerivedNF> &NF);
+    Eigen::PlainObjectBase<DerivedNF> &NQ,
+    const int &dynameshResolution);
 }
 
 #include "../src/remeshWithDualContouring.cpp"

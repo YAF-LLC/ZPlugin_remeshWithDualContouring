@@ -1,0 +1,185 @@
+////
+// varibales for ZFileUtils
+[VarDef,Zvers, 0]
+[VarDef,isMac, 0]
+[VarDef,separator, ""]
+[VarDef,dllPath, ""]
+[VarDef,dllVersion]
+// variables for our plugins
+[VarDef,pluginDllPath, ""]
+// variable for localization
+[VarDef,enLangFilePath, ""]
+// path to directory of this plugin
+[VarDef,rootPath, ""]
+[VarDef,tmpValue, 0]
+// variable for export
+[VarDef,subTName, ""]
+[VarDef,activeSubT, ""]
+[VarDef,activeSubTName, ""]
+[VarDef,currentTool, 0]
+[VarDef,XYZSize, 0]
+[VarDef,useGizmo, 0]
+[VarDef,perspective, 0]
+[VarDef,xFlip, 0]
+[VarDef,yFlip, 0]
+[VarDef,zFlip, 0]
+// variable for json string
+[VarDef, quote, [StrFromAsc, 34]]
+[MemCreate, jsonMem, 1024]
+[MemCreate, workingMem, 1024]
+[VarDef, bytesWritten, 0]
+
+//////
+// search dlls
+// from http://docs.pixologic.com/user-guide/customizing-zbrush/zscripting/zfileutils/#dllPath
+[RoutineDef, CheckSystem,	
+    //check ZBrush version
+    [VarSet,Zvers,[ZBrushInfo,0]]
+    [If,[Val,Zvers] >= 2021.0,,	
+        [Note,"\Cff9923This zscript\Cffffff is not designed for this version of 
+            \Cff9923ZBrush\Cffffff.",,3,4737096,,300]
+        [Exit]
+    ]
+    [VarSet,isMac, [ZBrushInfo,6]]	//check Mac or PC
+                                    // Make sure we have the dll and set its path
+    [If,[ZBrushInfo,16]==64,//64 bit
+        [If,isMac,
+            //use the path below for testing only
+            // [VarSet,rootPath,"remeshWithDualContouring_2022/"]
+            //use the path below for installed plugins
+            [VarSet,rootPath,"ZBRUSH_ZSTARTUP/ZPlugs64/remeshWithDualContouring_2022/"]
+            [VarSet, rootPath, [FileNameResolvePath, #rootPath]]
+
+            [VarSet,dllPath,[StrMerge, #rootPath,"ZFileUtils.lib"]]
+            [VarSet,pluginDllPath,[StrMerge, #rootPath,"remeshWithDualContouring.lib"]]
+            [VarSet,enLangFilePath,[StrMerge, #rootPath,"lang/remeshWithDualContouring_2022_en.xml"]]
+            [VarSet,separator,"/"]
+        ,
+            //use the path below for testing only
+            // [VarSet,rootPath,"remeshWithDualContouring_2022/"]
+            //use the path below for installed plugins
+            [VarSet,rootPath,"ZBRUSH_ZSTARTUP/ZPlugs64/remeshWithDualContouring_2022/"]
+            [VarSet, rootPath, [FileNameResolvePath, #rootPath]]
+            [Loop, [StrLength, rootPath],
+                [VarSet, tmpValue, [StrFind, "\", rootPath]]
+                [If, #tmpValue > -1,
+                    [VarSet, rootPath, [StrMerge, [StrExtract, rootPath, 0, tmpValue-1], "/", [StrExtract, rootPath, tmpValue+1, [StrLength, rootPath]-1]]],
+                    [LoopExit]
+                ]
+            ]
+
+            [VarSet,dllPath,[StrMerge, #rootPath,"ZFileUtils64.dll"]]
+            [VarSet,pluginDllPath,[StrMerge, #rootPath,"remeshWithDualContouring.dll"]]
+            [VarSet,enLangFilePath,[StrMerge, #rootPath,"lang/remeshWithDualContouring_2022_en.xml"]]
+            [VarSet,separator,"/"]
+        ]
+    ,//else 32 bit - no longer supported
+        [Note,"\Cff9923This zscript\Cffffff is not designed for this version of 
+            \Cff9923ZBrush\Cffffff.",,3,4737096,,300]
+        [Exit]
+    ]
+
+    [If, [FileExists, [Var,dllPath]] && [FileExists, [Var,pluginDllPath]] && [FileExists, [Var,enLangFilePath]],
+        //check that correct version
+        [VarSet, dllVersion, [FileExecute, [Var,dllPath], Version]]
+        [If, #dllVersion >= 8.0,//dll version
+            //OK
+        ,//else earlier version			
+            [Note,"\Cff9923Note :\Cc0c0c0 The \Cff9923 ZFileUtils plugin \CffffffDLL\Cc0c0c0 is 
+                an earlier version which does not support this plugin.  Please install correct version."]
+            [Exit]
+        ]
+    , // else no DLL.
+        [Note,"\Cff9923Note :\Cc0c0c0 The \Cff9923 ZFileUtils plugin \CffffffDLL\Cc0c0c0 could
+            not be found at the correct location.  Please re-install the plugin, making sure the 
+            relevant files and folders are in the \CffffffZStartup/ZPlugs\Cc0c0c0 folder."]
+        [Exit]
+    ]
+]
+//////
+
+//////
+// translation routine
+// from http://docs.pixologic.com/user-guide/customizing-zbrush/zscripting/zfileutils/localization/
+[RoutineDef, ZFU_RegisterLocalizationFile,
+	[FileExecute, #dllPath, RegisterLocalizationFile, enFilePath]
+, enFilePath]
+//////
+
+//////
+// write str to mem (+ auto-resize)
+// note that strFragment must < 255 chars
+[RoutineDef, writeStrFragmentToJsonMem,
+    [If, [StrLength, strFragment]+#bytesWritten > [MemGetSize, jsonMem],
+        [MemCopy, jsonMem, 0, workingMem, 0, #bytesWritten]
+        [MemResize, jsonMem, [MemGetSize, jsonMem]+1024]
+        [MemCopy, workingMem, 0, jsonMem, 0, #bytesWritten]
+        [MemResize, workingMem, [MemGetSize, jsonMem]]
+    ]
+    [MemWriteString, jsonMem, strFragment, #bytesWritten]
+    [VarAdd, bytesWritten, [StrLength, strFragment]]
+, strFragment]
+
+//////
+// startup
+[RoutineCall, CheckSystem]
+// [RoutineCall, ZFU_RegisterLocalizationFile, [FileNameResolvePath, #enLangFilePath]]
+
+//////
+// UI
+// button for remesh
+[ISubPalette, ZPlugin:Dual Contouring]
+
+[IButton, ZPlugin:Dual Contouring:Remesh, "Remesh with Dual Contouring", 
+    [IFreeze,
+        ////
+        // store current size and (dynamesh) resolution
+        [VarSet,XYZSize,[IGet,Tool:Geometry:XYZ Size]]
+        [VarSet,resolution,[IGet, Tool:Geometry:Resolution]]
+
+        // export to GoZ file
+        [VarSet, subTName, [IGetTitle,Tool:ItemInfo]]
+        [VarSet, activeSubTName, [StrExtract, #subTName, 0, [StrLength, #subTName]-2]]
+        [FileNameSetNext, [StrMerge, #rootPath, #separator, "data", #separator, #activeSubTName, ".GoZ"]]
+        [IPress,Tool:Export]
+
+        ////
+        // generate JSON string
+        [RoutineCall, writeStrFragmentToJsonMem, "{"]
+            // rootPath
+            [RoutineCall, writeStrFragmentToJsonMem, [StrMerge, #quote, "root", #quote, ":", #quote, #rootPath, #quote, ","]]
+            // meshFile
+            [RoutineCall, writeStrFragmentToJsonMem, [StrMerge, #quote, "meshFile", #quote, ":", 
+            #quote, "data", #separator, #activeSubTName, ".GoZ", #quote, ","]]
+            // ZBrush
+            [RoutineCall, writeStrFragmentToJsonMem, [StrMerge, #quote, "ZBrush", #quote, ":{"]]
+                // ZBrush/XYZSize
+                [RoutineCall, writeStrFragmentToJsonMem, [StrMerge, #quote, "XYZSize", #quote, ":", #XYZSize, ","]]
+                // ZBrush/resolution
+                [RoutineCall, writeStrFragmentToJsonMem, [StrMerge, #quote, "resolution", #quote, ":", #resolution]]
+            [RoutineCall, writeStrFragmentToJsonMem, "}"]
+        [RoutineCall, writeStrFragmentToJsonMem, "}"]
+
+        [MemResize, workingMem, #bytesWritten]
+        [MemCopy, jsonMem, 0, workingMem, 0, #bytesWritten]
+        [MemSaveToFile, workingMem, [StrMerge, #rootPath, #separator, "data", #separator, "parameters.txt"], 1]
+        [MemResize, jsonMem, 1024]
+        [MemResize, workingMem, 1024]
+        [VarSet, bytesWritten, 0]
+
+        ////
+        // call dll function
+        [VarSet, result, [FileExecute, #pluginDllPath, "remesh", [StrMerge, #rootPath, #separator, "data", #separator, "parameters.txt"]]]
+
+        [If, result,
+            // import
+            [FileNameSetNext, [StrMerge, #rootPath, #separator, "data", #separator, "remeshed.GoZ"]]
+            [IPress,"Tool:Import"]
+            // erase temporary file.
+            // [FileDelete, [StrMerge, #rootPath, #separator, "data", #separator, "remeshed.GoZ"]]
+        ,
+            [Note, "Sorry, there is some error..."]
+        ]
+    ]
+    , 0, 1
+]
