@@ -16,13 +16,7 @@
 [VarDef,subTName, ""]
 [VarDef,activeSubT, ""]
 [VarDef,activeSubTName, ""]
-[VarDef,currentTool, 0]
 [VarDef,XYZSize, 0]
-[VarDef,useGizmo, 0]
-[VarDef,perspective, 0]
-[VarDef,xFlip, 0]
-[VarDef,yFlip, 0]
-[VarDef,zFlip, 0]
 // variable for json string
 [VarDef, quote, [StrFromAsc, 34]]
 [MemCreate, jsonMem, 1024]
@@ -128,9 +122,13 @@
 //////
 // UI
 // button for remesh
-[ISubPalette, ZPlugin:Dual Contouring]
+[ISubPalette, "ZPlugin:Dual Contouring"]
 
-[IButton, ZPlugin:Dual Contouring:Remesh, "Remesh with Dual Contouring", 
+[ISwitch, "ZPlugin:Dual Contouring:Mask", 1, "Keep Mask", , , 0, 0.33]
+[ISwitch, "ZPlugin:Dual Contouring:PolyGroup", 1, "Keep PolyGroup", , , 0, 0.33]
+[ISwitch, "ZPlugin:Dual Contouring:PolyPaint", 1, "Keep PolyPaint", , , 0, 0.33]
+
+[IButton, "ZPlugin:Dual Contouring:Remesh", "Remesh with Dual Contouring", 
     [IFreeze,
         ////
         // store current size and (dynamesh) resolution
@@ -156,7 +154,25 @@
                 // ZBrush/XYZSize
                 [RoutineCall, writeStrFragmentToJsonMem, [StrMerge, #quote, "XYZSize", #quote, ":", #XYZSize, ","]]
                 // ZBrush/resolution
-                [RoutineCall, writeStrFragmentToJsonMem, [StrMerge, #quote, "resolution", #quote, ":", #resolution]]
+                [RoutineCall, writeStrFragmentToJsonMem, [StrMerge, #quote, "resolution", #quote, ":", #resolution, ","]]
+                // ZBrush/mask
+                [If, [IGet, "ZPlugin:Dual Contouring:Mask"],
+                    [RoutineCall, writeStrFragmentToJsonMem, [StrMerge, #quote, "mask", #quote, ":", "true", ","]]
+                    ,
+                    [RoutineCall, writeStrFragmentToJsonMem, [StrMerge, #quote, "mask", #quote, ":", "false", ","]]
+                ]
+                // ZBrush/polygroup
+                [If, [IGet, "ZPlugin:Dual Contouring:PolyGroup"],
+                    [RoutineCall, writeStrFragmentToJsonMem, [StrMerge, #quote, "polygroup", #quote, ":", "true", ","]]
+                    ,
+                    [RoutineCall, writeStrFragmentToJsonMem, [StrMerge, #quote, "polygroup", #quote, ":", "false", ","]]
+                ]
+                // ZBrush/polypaint
+                [If, [IGet, "ZPlugin:Dual Contouring:PolyPaint"],
+                    [RoutineCall, writeStrFragmentToJsonMem, [StrMerge, #quote, "polypaint", #quote, ":", "true"]]
+                    ,
+                    [RoutineCall, writeStrFragmentToJsonMem, [StrMerge, #quote, "polypaint", #quote, ":", "false"]]
+                ]
             [RoutineCall, writeStrFragmentToJsonMem, "}"]
         [RoutineCall, writeStrFragmentToJsonMem, "}"]
 
@@ -173,13 +189,18 @@
 
         [If, result,
             // import
-            [FileNameSetNext, [StrMerge, #rootPath, #separator, "data", #separator, "remeshed.GoZ"]]
+            [FileNameSetNext, [StrMerge, #rootPath, #separator, "data", #separator, #activeSubTName, ".GoZ"]]
             [IPress,"Tool:Import"]
             // erase temporary file.
-            // [FileDelete, [StrMerge, #rootPath, #separator, "data", #separator, "remeshed.GoZ"]]
+            // [FileDelete, [StrMerge, #rootPath, #separator, "data", #separator, #activeSubTName, ".GoZ"]]
+            // [FileDelete, [StrMerge, #rootPath, #separator, "data", #separator, "parameters.txt"]]
         ,
             [Note, "Sorry, there is some error..."]
         ]
     ]
     , 0, 1
 ]
+
+[IEnable, "ZPlugin:Dual Contouring:Mask"]
+[IEnable, "ZPlugin:Dual Contouring:PolyGroup"]
+[IEnable, "ZPlugin:Dual Contouring:PolyPaint"]

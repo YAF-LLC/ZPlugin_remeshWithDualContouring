@@ -1,5 +1,18 @@
 <buttons>
+  <button path="ZPlugin:Dual Contouring:Mask">
+    <title text="Mask" trans=""/>
+    <info text="Keep Mask" trans=""/>
+  </button>
+  <button path="ZPlugin:Dual Contouring:PolyGroup">
+    <title text="PolyGroup" trans=""/>
+    <info text="Keep PolyGroup" trans=""/>
+  </button>
+  <button path="ZPlugin:Dual Contouring:PolyPaint">
+    <title text="PolyPaint" trans=""/>
+    <info text="Keep PolyPaint" trans=""/>
+  </button>
   <button path="ZPlugin:Dual Contouring:Remesh">
-    <title text="Remesh with Dual Contouring" trans=""/>
+    <title text="Remesh" trans=""/>
+    <info text="Remesh with Dual Contouring" trans=""/>
   </button>
 </buttons>
