@@ -19,6 +19,6 @@ int main()
 
     char buf[255];
     char **zData = nullptr;
-    remesh("C:/PROGRAM FILES/PIXOLOGIC/ZBRUSH 2022/ZSTARTUP/ZPlugs64/remeshWithDualContouring_2022/data/parameters.txt", 0.0, buf, 0, buf, 0, zData);
+    remesh("/APPLICATIONS/ZBRUSH 2022/ZSTARTUP/ZPlugs64/remeshWithDualContouring_2022/data/parameters.txt", 0.0, buf, 0, buf, 0, zData);
     return 0;
 }

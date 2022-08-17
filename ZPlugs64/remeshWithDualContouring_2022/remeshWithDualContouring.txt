@@ -5,12 +5,14 @@
 [VarDef,separator, ""]
 [VarDef,dllPath, ""]
 [VarDef,dllVersion]
+[VarDef,minDllVersion]
 // variables for our plugins
 [VarDef,pluginDllPath, ""]
 // variable for localization
 [VarDef,enLangFilePath, ""]
 // path to directory of this plugin
 [VarDef,rootPath, ""]
+[VarDef,rootPathWithoutPrefix, ""]
 [VarDef,tmpValue, 0]
 // variable for export
 [VarDef,subTName, ""]
@@ -43,6 +45,8 @@
             //use the path below for installed plugins
             [VarSet,rootPath,"ZBRUSH_ZSTARTUP/ZPlugs64/remeshWithDualContouring_2022/"]
             [VarSet, rootPath, [FileNameResolvePath, #rootPath]]
+            // for macOS, we remove first two characters ("!:")
+            [VarSet, rootPathWithoutPrefix, [StrExtract, #rootPath, 2, [StrLength, #rootPath] - 1]]
 
             [VarSet,dllPath,[StrMerge, #rootPath,"ZFileUtils.lib"]]
             [VarSet,pluginDllPath,[StrMerge, #rootPath,"remeshWithDualContouring.lib"]]
@@ -61,6 +65,7 @@
                     [LoopExit]
                 ]
             ]
+            [VarSet, rootPathWithoutPrefix, #rootPath]
 
             [VarSet,dllPath,[StrMerge, #rootPath,"ZFileUtils64.dll"]]
             [VarSet,pluginDllPath,[StrMerge, #rootPath,"remeshWithDualContouring.dll"]]
@@ -76,9 +81,15 @@
     [If, [FileExists, [Var,dllPath]] && [FileExists, [Var,pluginDllPath]] && [FileExists, [Var,enLangFilePath]],
         //check that correct version
         [VarSet, dllVersion, [FileExecute, [Var,dllPath], Version]]
-        [If, #dllVersion >= 8.0,//dll version
+        [If,isMac,
+            // for macOS, latest ZFileUtils is 4.8
+            [VarSet, minDllVersion, 4.8]
+            ,
+            [VarSet, minDllVersion, 8.0]
+        ]
+        [If, #dllVersion >= #minDllVersion,//dll version
             //OK
-        ,//else earlier version			
+        ,//else earlier version
             [Note,"\Cff9923Note :\Cc0c0c0 The \Cff9923 ZFileUtils plugin \CffffffDLL\Cc0c0c0 is 
                 an earlier version which does not support this plugin.  Please install correct version."]
             [Exit]
@@ -145,7 +156,7 @@
         // generate JSON string
         [RoutineCall, writeStrFragmentToJsonMem, "{"]
             // rootPath
-            [RoutineCall, writeStrFragmentToJsonMem, [StrMerge, #quote, "root", #quote, ":", #quote, #rootPath, #quote, ","]]
+            [RoutineCall, writeStrFragmentToJsonMem, [StrMerge, #quote, "root", #quote, ":", #quote, #rootPathWithoutPrefix, #quote, ","]]
             // meshFile
             [RoutineCall, writeStrFragmentToJsonMem, [StrMerge, #quote, "meshFile", #quote, ":", 
             #quote, "data", #separator, #activeSubTName, ".GoZ", #quote, ","]]
@@ -185,15 +196,15 @@
 
         ////
         // call dll function
-        [VarSet, result, [FileExecute, #pluginDllPath, "remesh", [StrMerge, #rootPath, #separator, "data", #separator, "parameters.txt"]]]
+        [VarSet, result, [FileExecute, #pluginDllPath, "remesh", [StrMerge, #rootPathWithoutPrefix, #separator, "data", #separator, "parameters.txt"]]]
 
         [If, result,
             // import
             [FileNameSetNext, [StrMerge, #rootPath, #separator, "data", #separator, #activeSubTName, ".GoZ"]]
             [IPress,"Tool:Import"]
             // erase temporary file.
-            // [FileDelete, [StrMerge, #rootPath, #separator, "data", #separator, #activeSubTName, ".GoZ"]]
-            // [FileDelete, [StrMerge, #rootPath, #separator, "data", #separator, "parameters.txt"]]
+            [FileDelete, [StrMerge, #rootPath, #separator, "data", #separator, #activeSubTName, ".GoZ"]]
+            [FileDelete, [StrMerge, #rootPath, #separator, "data", #separator, "parameters.txt"]]
         ,
             [Note, "Sorry, there is some error..."]
         ]

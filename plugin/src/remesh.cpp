@@ -25,8 +25,6 @@ extern "C" DLLEXPORT float remesh(char *someText, double optValue, char *outputB
     nlohmann::json json = nlohmann::json::parse(ifs);
     ifs.close();
 
-    std::cout << json.dump(4) << std::endl;
-
     const std::string rootString = json.at("root").get<std::string>();
     const fs::path rootPath(rootString);
 
