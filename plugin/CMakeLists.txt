@@ -28,6 +28,12 @@ target_sources(
 ##### Libraries #####
 #####################
 ###
+# boost
+if (APPLE)
+    find_package(Boost REQUIRED COMPONENTS filesystem)
+endif ()
+
+###
 # json
 find_package(nlohmann_json CONFIG REQUIRED)
 
@@ -36,13 +42,25 @@ find_package(nlohmann_json CONFIG REQUIRED)
 find_package(Eigen3 CONFIG REQUIRED)
 
 # Add external libraries
-target_link_libraries(
-    ${PROJECT}
-    PRIVATE
-    nlohmann_json
-    nlohmann_json::nlohmann_json
-    Eigen3::Eigen
-)
+if (WIN32)
+    target_link_libraries(
+        ${PROJECT}
+        PRIVATE
+        nlohmann_json
+        nlohmann_json::nlohmann_json
+        Eigen3::Eigen
+    )
+elseif (APPLE)
+    target_link_libraries(
+        ${PROJECT}
+        PRIVATE
+        Boost::boost
+        Boost::filesystem
+        nlohmann_json
+        nlohmann_json::nlohmann_json
+        Eigen3::Eigen
+    )
+endif ()
 ###########################
 ##### Libraries (end) #####
 ###########################
@@ -52,14 +70,26 @@ target_link_libraries(
 ##### Include #####
 ###################
 # Add a include files
-target_include_directories(
-    ${PROJECT}
-    PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../submodule/libigl/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../submodule/eigen
-    ${CMAKE_CURRENT_SOURCE_DIR}/../submodule/FromZ/src
-)
+if (WIN32)
+    target_include_directories(
+        ${PROJECT}
+        PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/../submodule/libigl/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/../submodule/eigen
+        ${CMAKE_CURRENT_SOURCE_DIR}/../submodule/FromZ/src
+    )
+elseif (APPLE)
+    target_include_directories(
+        ${PROJECT}
+        PRIVATE
+        ${Boost_INCLUDE_DIRS}
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/../submodule/libigl/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/../submodule/eigen
+        ${CMAKE_CURRENT_SOURCE_DIR}/../submodule/FromZ/src
+    )
+endif ()
 #########################
 ##### Include (end) #####
 #########################

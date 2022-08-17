@@ -91,8 +91,13 @@ endif ()
 #####################
 ##### Resources #####
 #####################
-add_custom_command(TARGET ${PROJECT} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/build/plugin/Release/remeshWithDualContouring.dll" "$<TARGET_FILE_DIR:${PROJECT}>")
-add_custom_command(TARGET ${PROJECT} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/build/plugin/Release/remeshWithDualContouring.dll" "${CMAKE_CURRENT_SOURCE_DIR}/ZPlugs64/remeshWithDualContouring_2022/remeshWithDualContouring.dll")
+if (WIN32)
+    add_custom_command(TARGET ${PROJECT} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/build/plugin/Release/remeshWithDualContouring.dll" "$<TARGET_FILE_DIR:${PROJECT}>")
+    add_custom_command(TARGET ${PROJECT} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/build/plugin/Release/remeshWithDualContouring.dll" "${CMAKE_CURRENT_SOURCE_DIR}/ZPlugs64/remeshWithDualContouring_2022/remeshWithDualContouring.dll")
+elseif (APPLE)
+    add_custom_command(TARGET ${PROJECT} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/build/plugin/libremeshWithDualContouring.dylib" "$<TARGET_FILE_DIR:${PROJECT}>/remeshWithDualContouring.lib")
+    add_custom_command(TARGET ${PROJECT} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/build/plugin/libremeshWithDualContouring.dylib" "${CMAKE_CURRENT_SOURCE_DIR}/ZPlugs64/remeshWithDualContouring_2022/remeshWithDualContouring.lib")
+endif ()
 ###########################
 ##### Resources (end) #####
 ###########################

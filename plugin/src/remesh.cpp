@@ -21,7 +21,7 @@ extern "C" DLLEXPORT float remesh(char *someText, double optValue, char *outputB
     ////
     // parse parameter (JSON)
     fs::path jsonPath(someText);
-    std::ifstream ifs(jsonPath);
+    std::ifstream ifs(jsonPath.string());
     nlohmann::json json = nlohmann::json::parse(ifs);
     ifs.close();
 

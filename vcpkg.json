@@ -4,6 +4,7 @@
     "description": "ZBrush plugin for remeshing with Dual Contouring",
     "homepage": "https://github.com/n-taka/ZBrush_remeshWithDualContouring",
     "dependencies": [
+        "boost-filesystem",
         "nlohmann-json",
         "eigen3"
     ]
