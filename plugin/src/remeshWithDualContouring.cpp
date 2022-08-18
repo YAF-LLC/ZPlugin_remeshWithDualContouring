@@ -92,10 +92,12 @@ IGL_INLINE void igl::remeshWithDualContouring(
 
     ////
     // remesh with Dual Contouring
-    const RowVector3S min_corner = V.colwise().minCoeff();
-    const RowVector3S max_corner = V.colwise().maxCoeff();
-    const RowVector3S BBSize = V.colwise().maxCoeff() - V.colwise().minCoeff();
     const Scalar unitSize = static_cast<Scalar>(2.0) / static_cast<Scalar>(dynameshResolution);
+    RowVector3S padding;
+    padding.setConstant(unitSize);
+    const RowVector3S min_corner_with_padding = V.colwise().minCoeff() - padding;
+    const RowVector3S max_corner_with_padding = V.colwise().maxCoeff() + padding;
+    const RowVector3S BBSize = V.colwise().maxCoeff() - V.colwise().minCoeff();
     int nx = static_cast<int>(std::ceil(BBSize(0) / unitSize)) + 1;
     int ny = static_cast<int>(std::ceil(BBSize(1) / unitSize)) + 1;
     int nz = static_cast<int>(std::ceil(BBSize(2) / unitSize)) + 1;
@@ -106,7 +108,7 @@ IGL_INLINE void igl::remeshWithDualContouring(
     bool root_finding = true;
 
     igl::dual_contouring(
-        f, f_grad, min_corner, max_corner, nx, ny, nz, constrained, triangles, root_finding, NV, NQ);
+        f, f_grad, min_corner_with_padding, max_corner_with_padding, nx, ny, nz, constrained, triangles, root_finding, NV, NQ);
 
     // std::cout << "Input : " << "#V " << V.rows() << " / " << "#F (tri)  " << F.rows() << std::endl;
     // std::cout << "Output: " << "#V " << NV.rows() << " / " << "#F (quad) " << NQ.rows() << std::endl;
