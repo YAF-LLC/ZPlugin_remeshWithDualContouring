@@ -1,8 +1,8 @@
 {
-    "name": "zbrush-remeshwithdualcontouring",
+    "name": "zplugin-remeshwithdualcontouring",
     "version-string": "2022",
     "description": "ZBrush plugin for remeshing with Dual Contouring",
-    "homepage": "https://github.com/n-taka/ZBrush_remeshWithDualContouring",
+    "homepage": "https://github.com/n-taka/ZPlugin_remeshWithDualContouring",
     "dependencies": [
         "boost-filesystem",
         "nlohmann-json",
